@@ -10,8 +10,18 @@ typedef struct SharedData{
 }SharedData;
 
 void* thr_fn(void* arg){
+    SharedData *pd = (SharedData*)arg;
+    int i;
+    for (i = 0; i < 10000; i++) {
+        pd->count=pd->count + 1;
+    }
+    return((void*)0);
+}
+
+int main()
+{
     SharedData d;
-    SharedData *pd = &d;
+    SharedData* pd = &d;
     int i;
     d.count = 0;
 
