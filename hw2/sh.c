@@ -1,4 +1,4 @@
-:#include <stdlib.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -61,22 +61,58 @@ runcmd(struct cmd *cmd)
     ecmd = (struct execcmd*)cmd;
     if(ecmd->argv[0] == 0)
       _exit(0);
-    fprintf(stderr, "exec not implemented\n");
     // Your code here ...
+    // exception handling(which is error message) needed
+    if( execvp(ecmd->argv[0], ecmd->argv) < 0 ){
+       fprintf(stderr, "exec failed.\n");
+       exit(-1);
+    }
     break;
 
   case '>':
   case '<':
     rcmd = (struct redircmd*)cmd;
-    fprintf(stderr, "redir not implemented\n");
     // Your code here ...
+    close(rcmd->fd);
+    int fileDes;
+    if(rcmd->type == '>'){
+        // if a > b
+        fileDes = open(rcmd->file, rcmd->flags, S_IRWXU | S_IRWXG | S_IRWXO);
+    } else {
+        // if a < b
+        fileDes = open(rcmd->file, rcmd->flags, S_IRWXU | S_IRWXG | S_IRWXO);
+    }
+    // if opening file fails 
+    if(fileDes < 0){
+        fprintf(stderr, "open failed.\n");
+        exit(-1);
+    }
     runcmd(rcmd->cmd);
     break;
 
   case '|':
     pcmd = (struct pipecmd*)cmd;
-    fprintf(stderr, "pipe not implemented\n");
     // Your code here ...
+    if(pipe(p) < 0){
+        fprintf(stderr, "Pipe failed.\n");
+        exit(-1);
+    }
+    if(fork1() == 0){
+        // child process
+        close(STDOUT_FILENO);
+        dup(p[1]);
+        close(p[0]);
+        close(p[1]);
+        runcmd(pcmd->left);
+    } else {
+        // parent process
+        wait(&r);
+        close(STDIN_FILENO);
+        dup(p[0]);
+        close(p[0]);
+        close(p[1]);
+        runcmd(pcmd->right);
+    }
     break;
   }    
   _exit(0);
