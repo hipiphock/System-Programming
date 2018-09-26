@@ -74,14 +74,7 @@ runcmd(struct cmd *cmd)
     rcmd = (struct redircmd*)cmd;
     // Your code here ...
     close(rcmd->fd);
-    int fileDes;
-    if(rcmd->type == '>'){
-        // if a > b
-        fileDes = open(rcmd->file, rcmd->flags, S_IRWXU | S_IRWXG | S_IRWXO);
-    } else {
-        // if a < b
-        fileDes = open(rcmd->file, rcmd->flags, S_IRWXU | S_IRWXG | S_IRWXO);
-    }
+    int fileDes = open(rcmd->file, rcmd->flags, S_IRWXU | S_IRWXG | S_IRWXO);
     // if opening file fails 
     if(fileDes < 0){
         fprintf(stderr, "open failed.\n");
