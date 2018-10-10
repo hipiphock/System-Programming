@@ -89,13 +89,14 @@ trap(struct trapframe *tf)
               tf->trapno, cpuid(), tf->eip, rcr2());
       panic("trap");
     }
-    // for hw3
-    if(tf->trapno == T_PGFLT){
-        char* memory = kalloc();
-        memset(memory, 0, PGSIZE);
-        uint dosmas = PGROUNDDOWN(rcr2());
+    // for hw4
+    // lazy memory allocation
+    if(tf->trapno == T_PGFLT){	
+        char* memory = kalloc();		// kalloc() is already implemented
+        memset(memory, 0, PGSIZE);		
+        uint dosmas = PGROUNDDOWN(rcr2());	// see until virtual address where there was page fault
         mappages(myproc()->pgdir, (char*)dosmas, PGSIZE, V2P(memory), PTE_W | PTE_U);
-        break;
+        break;		// for avoiding next cprintf
     }
 
     // In user space, assume process misbehaved.
