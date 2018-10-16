@@ -42,3 +42,29 @@ Let's add the following line.
 ```
 
 It implies that if a system call with number 22 occures, the function pointed by the function pointer **sys_date** will be called.
+
+So, now we have to implement this function **sys_date**. Before implementation, let's declare **sys_date** in this file
+
+``` c
+extern int sys_fork(void);
+extern int sys_exit(void);
+extern int sys_wait(void);
+.
+.
+.
+extern int sys_close(void);
+extern int sys_date(void);
+```
+
+Actual system call functions are defined in two files: **sysproc.c** and **sysfile.c**. Since **sysfile.c** contains system calls related to file system, and others for rest, we are going to define function in **sysproc.c**.
+
+Let's open the file and add function implementation at the end of the file
+``` c
+int sys_date(void){
+  struct rtdate *r;
+  if(argptr(0, (void *)&r, sizeof(&r)) < 0)
+    return -1;
+  cmostime(r);
+  return 0;
+}
+``
