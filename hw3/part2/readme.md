@@ -59,12 +59,35 @@ extern int sys_date(void);
 Actual system call functions are defined in two files: **sysproc.c** and **sysfile.c**. Since **sysfile.c** contains system calls related to file system, and others for rest, we are going to define function in **sysproc.c**.
 
 Let's open the file and add function implementation at the end of the file
+
 ``` c
 int sys_date(void){
-  struct rtdate *r;
-  if(argptr(0, (void *)&r, sizeof(&r)) < 0)
-    return -1;
-  cmostime(r);
-  return 0;
+    struct rtdate *r;
+    if(argptr(0, (void *)&r, sizeof(&r)) < 0)
+        return -1;
+    cmostime(r);
+    return 0;
 }
 ```
+
+Now we have only two files to edit and these files will contain the interface for our user program to access the system call.
+Open the file **usys.S** and add a line below at the end.
+
+``` c
+SYSCALL(date)
+```
+
+Then, open the file called **user.h** and add **int date(struct rtcdate *r);**.
+
+``` c
+// system calls
+int fork(void);
+int exit(void);
+.
+.
+.
+int date(struct rtcdate *r);
+```
+
+This is what the user program calls. As you know, there is no such a function implemented in the system. Instead, if **date** function is called from user program, it will be mapped to the system call number 22 which is defined as SYS_date preprocessor directive. The system knows what exactly is the system call and how to handle it.
+
