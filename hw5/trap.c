@@ -59,7 +59,7 @@ trap(struct trapframe *tf)
     }
     if(myproc() != 0 && (tf->cs & 3) == 3){
          if (myproc()->alarmhandler != 0
-                && ++ticks % myproc()->alarmticks == 0){
+                && ticks % myproc()->alarmticks == 0){
              if(tf->esp > myproc()->sz)
                  break;
              tf->esp -= 4;
