@@ -19,6 +19,7 @@ int keys[NKEYS];
 int nthread = 1;
 volatile int done;
 
+pthread_mutex_t lock;
 
 double
 now()
@@ -82,7 +83,9 @@ thread(void *xa)
   t0 = now();
   for (i = 0; i < b; i++) {
     // printf("%d: put %d\n", n, b*n+i);
+    pthread_mutex_lock(&lock);
     put(keys[b*n + i], n);
+    pthread_mutex_unlock(&lock);
   }
   t1 = now();
   printf("%ld: put time = %f\n", n, t1-t0);
@@ -109,6 +112,8 @@ main(int argc, char *argv[])
   void *value;
   long i;
   double t1, t0;
+
+  pthread_mutex_init(&lock, NULL);
 
   if (argc < 2) {
     fprintf(stderr, "%s: %s nthread\n", argv[0], argv[0]);
